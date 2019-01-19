@@ -1,4 +1,4 @@
-Dart
+# Dart
 
 Placera ut ett par punkter motsvarande dartpilarnas toppar, och hitta vart de befinner sig i dartboardens koordinatsystem.
 
@@ -20,3 +20,13 @@ Viola jones
 
 Vår idé:
 Hitta tavlans mittpunkt samt två circlar med ett given relation mellan dem. Sampla från dessa för att skapa homografin.
+
+
+## Related work:
+* Repository:
+https://github.com/matherm/matherm.github.io/tree/master/assets/code/dart
+
+* Webarticle: https://matherm.github.io/2018/02/02/the-score-is-nine/
+
+* Paper:
+https://web.stanford.edu/class/ee368/Project_Autumn_1516/Reports/Delaney.pdf
