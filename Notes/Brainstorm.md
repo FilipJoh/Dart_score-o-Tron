@@ -1,4 +1,4 @@
-# Dart
+﻿# Dart
 
 Placera ut ett par punkter motsvarande dartpilarnas toppar, och hitta vart de befinner sig i dartboardens koordinatsystem.
 
@@ -30,3 +30,6 @@ https://github.com/matherm/matherm.github.io/tree/master/assets/code/dart
 
 * Paper:
 https://web.stanford.edu/class/ee368/Project_Autumn_1516/Reports/Delaney.pdf
+
+* Conic Correspondence:
+http://www.macs.hw.ac.uk/bmvc2006/papers/306.pdf
