@@ -40,7 +40,7 @@ plt.show()
 # The accuracy corresponds to the bin size of a major axis.
 # The value is chosen in order to get a single high accumulator.
 # The threshold eliminates low accumulators
-result = hough_ellipse(edges, accuracy=20, threshold=80,
+result = hough_ellipse(edges, accuracy=20, threshold=100,
                        min_size=40, max_size=120)
 result.sort(order='accumulator')
 
