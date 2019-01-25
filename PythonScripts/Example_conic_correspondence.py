@@ -1,4 +1,5 @@
 import matplotlib.pyplot as plt
+from copy import deepcopy
 
 import numpy as np
 import cv2
@@ -14,9 +15,23 @@ class Conic(object):
     
     def pointwise_transform(self, H):
         new_C = np.inv(H).T.dot(self.C).dot(np.inv(H))
-        return Conic(new_C, self.Z)
+        if np.det(new_C):
+            new_conic = Ellipse()
+        elif np.det(new_C):
+            new_conic = None
+        elif np.det(new_C):
+            new_conic = None
+        else:
+            new_conic = None
+        
+        new_conic.C = new_C
+        new_conic.__set_parametrization()
+        return new_conic
     
-    def sample_projection(self, camera_matrix, npoints=10):
+    def __get_parametrization():
+        pass
+    
+    def __set_parametrization():
         pass
 
 class Ellipse(Conic):
@@ -48,6 +63,14 @@ class Ellipse(Conic):
         E_prime = D*np.sin(self.theta) + E*np.cos(self.theta)
         F_prime = F
         return (A_prime, B_prime, C_prime, D_prime, E_prime, F_prime)
+    
+    def __set_parametrization(self):
+        A = self.C[0, 0]
+        B = 2*self.C[0, 1]
+        C = self.C[1, 1]
+        D = 2*self.C[0,2]
+        E = 2*self.C[1,2]
+        F = 2*self.C[2,2]
     
     def sample(self, npoints=10):
         # Generate uniformely distributed angles
