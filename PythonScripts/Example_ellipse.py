@@ -9,26 +9,27 @@ from scipy import ndimage as ndi
 import pdb
 
 import os
+import cv2
 
 from skimage import io
 
 ## Modified example from Scikit image.org about hough detector
 
 # Load picture, convert to grayscale and detect edges
-image_rgb = io.imread(os.path.abspath('../Images/board.jpg'))#data.coffee()[0:220, 160:420]
+image_rgb = cv2.imread(os.path.abspath('../Images/board.jpg'))#data.coffee()[0:220, 160:420]
 
 dimensions = image_rgb.shape
 print("image size: ({},{})".format(dimensions[0], dimensions[1]))
 # Scale down image to something more suitable
-image_rgb = rescale(image_rgb, 1.0 / 4.0, False)
+scale = 0.25
+image_rgb = cv2.resize(image_rgb, None, fx=scale, fy=scale)
 
 fig1, axori = plt.subplots()
 axori.imshow(image_rgb)
 plt.show()
 
-image_gray = color.rgb2gray(image_rgb)
-edges = canny(image_gray, sigma=2.0,
-              low_threshold=0.55, high_threshold=0.8)
+image_gray = cv2.cvtColor(image_rgb, cv2.COLOR_BGR2GRAY)
+edges = cv2.Canny(image_gray, 20, 80)
 #edges = ndi.binary_fill_holes(edges)
 #eroded_edges = ndi.binary_erosion(edges)
 #edges = edges != eroded_edges
@@ -40,11 +41,11 @@ plt.show()
 # The accuracy corresponds to the bin size of a major axis.
 # The value is chosen in order to get a single high accumulator.
 # The threshold eliminates low accumulators
-result = hough_ellipse(edges, accuracy=20, threshold=100,
+"""result = hough_ellipse(edges, accuracy=20, threshold=100,
                        min_size=40, max_size=120)
 result.sort(order='accumulator')
 
-pdb.set_trace()
+#pdb.set_trace()
 
 # Estimated parameters for the ellipse
 best = list(result[-1])
@@ -57,14 +58,15 @@ image_rgb[cy, cx] = (0, 0, 255)
 # Draw the edge (white) and the resulting ellipse (red)
 edges = color.gray2rgb(img_as_ubyte(edges))
 edges[cy, cx] = (250, 0, 0)
-
+"""
 fig2, (ax1, ax2) = plt.subplots(ncols=2, nrows=1, figsize=(8, 4),
                                 sharex=True, sharey=True)
+im2, contours, hierarchy = cv2. findContours(edges, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
 
 ax1.set_title('Original picture')
 ax1.imshow(image_rgb)
 
 ax2.set_title('Edge (white) and result (red)')
-ax2.imshow(edges)
+ax2.imshow(im2)
 
 plt.show()
