@@ -8,6 +8,7 @@ class Conic(object):
     def __init__(self, C, Z=0):
         # Ax**2 + Bxy + Cy**2 + Dx + Ey + F = 0.
         self.C = C
+        self.Z = Z
     
     def sample(self, npoints=10):
         # Given: p * M * p.T = 0
@@ -15,16 +16,23 @@ class Conic(object):
     
     def pointwise_transform(self, H):
         new_C = np.inv(H).T.dot(self.C).dot(np.inv(H))
-        if np.det(new_C):
-            new_conic = Ellipse()
-        elif np.det(new_C):
+        
+        discriminant = 2*new_C[0, 1]**2 - 4*new_C[0, 0]*new_C[1, 1]
+        if np.det(new_C) == 0:
+            ## Degenerate
             new_conic = None
-        elif np.det(new_C):
+        elif discriminant < 0:
+            # Ellipse
+            new_conic = Ellipse(0,0,0,0,0)
+        elif discriminant == 0:
+            # Parabola
             new_conic = None
-        else:
+        elif discriminant > 0:
+            # Hyperbola
             new_conic = None
         
         new_conic.C = new_C
+        new_conic.Z = self.Z
         new_conic.__set_parametrization()
         return new_conic
     
@@ -71,6 +79,10 @@ class Ellipse(Conic):
         D = 2*self.C[0,2]
         E = 2*self.C[1,2]
         F = 2*self.C[2,2]
+        
+        
+        
+        
     
     def sample(self, npoints=10):
         # Generate uniformely distributed angles
@@ -79,41 +91,34 @@ class Ellipse(Conic):
         points = np.zeros((2, npoints))
         for i, angle in enumerate(angles):
             # get coordinates for unrotated, origin-centered ellipse
-            quadrant = int(angle>0) + int(angle>np.pi/2) + int(angle>np.pi) + int(angle>1.5*np.pi)
-            x = np.abs(self.R_x*self.R_y*np.cos(angle)) / np.sqrt((self.R_y*np.cos(angle))**2 + (self.R_x*np.sin(angle))**2)
-            y = np.abs(self.R_x*self.R_y*np.sin(angle)) / np.sqrt((self.R_y*np.cos(angle))**2 + (self.R_x*np.sin(angle))**2)
-            
-            if quadrant == 2:
-                x *= -1
-            elif quadrant == 3:
-                x *= -1
-                y *= -1
-            elif quadrant == 4:
-                y *= -1
+            x = self.R_x*np.cos(angle)
+            y = self.R_y*np.sin(angle)
             
             # rotate coordinates
-            x = x*np.cos(self.theta) - y*np.sin(self.theta)
-            y = x*np.sin(self.theta) + y*np.cos(self.theta)
+            x_rot = x*np.cos(self.theta) - y*np.sin(self.theta)
+            y_rot = x*np.sin(self.theta) + y*np.cos(self.theta)
             
             # offset coordinates
-            x += self.C_x
-            y += self.C_y
+            x_translated = x_rot + self.C_x
+            y_translated = y_rot + self.C_y
             
-            points[0, i] = x
-            points[1, i] = y
+            points[0, i] = x_translated
+            points[1, i] = y_translated
         
         return points
 
 
-e = Ellipse(3, 0, 1, 5, 2*np.pi*0.00)
+e = Ellipse(0, 0, 1, 3, 0.05*2*np.pi)
 p = e.sample(1000)
 plt.scatter(p[0,:], p[1,:])
 plt.axis([-7,7,-7,7])
 plt.grid('on')
 plt.show()
         
+P1 = np.asarray(((1, 0, 0, 0), (0, 1, 0, 0), (0, 0, 1, 0)))
+
 K1 = []
 R1 = []
 t1 = []
 
-C1 = []
+P2 = []
