@@ -4,16 +4,17 @@ import numpy as np
 import cv2
 
 class Conic(object):
-    def __init__(self, A=0, B=0, C=0, D=0, E=0, F=0):
+    def __init__(self, C, Z=0):
         # Ax**2 + Bxy + Cy**2 + Dx + Ey + F = 0.
-        self.M = np.asarray(((A, B/2, D/2),(B/2, C, E/2),(D/2, E/2, F/2)))
+        self.C = C
     
     def sample(self, npoints=10):
         # Given: p * M * p.T = 0
         pass
     
-    def project(self, camera_matrix):
-        pass
+    def pointwise_transform(self, H):
+        new_C = np.inv(H).T.dot(self.C).dot(np.inv(H))
+        return Conic(new_C, self.Z)
     
     def sample_projection(self, camera_matrix, npoints=10):
         pass
@@ -21,14 +22,17 @@ class Conic(object):
     awdawdawdawdwadsvrfdfgnwejfnwe
 
 class Ellipse(Conic):
-    def __init__(self, C_x, C_y, R_x, R_y, theta):
+    def __init__(self, C_x, C_y, R_x, R_y, theta, Z=0):
         self.C_x = C_x
         self.C_y = C_y
         self.R_x = R_x
         self.R_y = R_y
         self.theta = theta
         
-        super().__init__(self.__get_parametrization())
+        (A, B, C, D, E, F) = self.__get_parametrization()
+        matrix_representation = np.asarray(((A, B/2, D/2),(B/2, C, E/2),(D/2, E/2, F/2)))
+        
+        super().__init__(matrix_representation, Z)
         
     def __get_parametrization(self):
         A = self.R_y**2
