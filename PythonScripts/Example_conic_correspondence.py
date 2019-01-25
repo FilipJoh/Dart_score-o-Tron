@@ -18,8 +18,6 @@ class Conic(object):
     
     def sample_projection(self, camera_matrix, npoints=10):
         pass
-    
-    awdawdawdawdwadsvrfdfgnwejfnwe
 
 class Ellipse(Conic):
     def __init__(self, C_x, C_y, R_x, R_y, theta, Z=0):
@@ -80,9 +78,6 @@ class Ellipse(Conic):
             
             points[0, i] = x
             points[1, i] = y
-            
-            
-            awdawdawd Forced conflict
         
         return points
 
