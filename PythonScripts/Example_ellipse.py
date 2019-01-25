@@ -21,21 +21,21 @@ image_rgb = cv2.imread(os.path.abspath('../Images/board.jpg'))#data.coffee()[0:2
 dimensions = image_rgb.shape
 print("image size: ({},{})".format(dimensions[0], dimensions[1]))
 # Scale down image to something more suitable
-scale = 0.25
+scale = 1.0
 image_rgb = cv2.resize(image_rgb, None, fx=scale, fy=scale)
 
-fig1, axori = plt.subplots()
-axori.imshow(image_rgb)
-plt.show()
+#fig1, axori = plt.subplots()
+#axori.imshow(image_rgb)
+#plt.show()
 
 image_gray = cv2.cvtColor(image_rgb, cv2.COLOR_BGR2GRAY)
-edges = cv2.Canny(image_gray, 20, 80)
+edges = cv2.Canny(image_gray, 200, 500)
 #edges = ndi.binary_fill_holes(edges)
 #eroded_edges = ndi.binary_erosion(edges)
 #edges = edges != eroded_edges
-fig3, axEdges = plt.subplots()
-axEdges.imshow(img_as_ubyte(edges))
-plt.show()
+#fig3, axEdges = plt.subplots()
+#axEdges.imshow(img_as_ubyte(edges))
+#plt.show()
 
 # Perform a Hough Transform
 # The accuracy corresponds to the bin size of a major axis.
@@ -59,14 +59,40 @@ image_rgb[cy, cx] = (0, 0, 255)
 edges = color.gray2rgb(img_as_ubyte(edges))
 edges[cy, cx] = (250, 0, 0)
 """
-fig2, (ax1, ax2) = plt.subplots(ncols=2, nrows=1, figsize=(8, 4),
+fig2, (ax1, ax2, ax3, ax4) = plt.subplots(ncols=4, nrows=1, figsize=(8, 4),
                                 sharex=True, sharey=True)
-im2, contours, hierarchy = cv2. findContours(edges, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+im2, contours, hierarchy = cv2.findContours(edges, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+sortedConts = sorted(contours, key=lambda x: cv2.contourArea(x), reverse=True)
+
+image_conts = image_gray.copy()
+image_conts = cv2.cvtColor(image_conts, cv2.COLOR_GRAY2BGR)
+image_ellipses = image_conts.copy()
+
+nbr_conts = 5
+
+cv2.drawContours(image_conts, sortedConts[:nbr_conts], -1, (0,255,0), 3)
+ellipses =[]
+
+
+for i in range(0,nbr_conts):
+    ellipse = cv2.fitEllipse(sortedConts[i])
+    cv2.ellipse(image_ellipses,ellipse, (255,0,255),5)
+    ellipses.append(ellipse)
+
+#print(len(contours))
+
+
 
 ax1.set_title('Original picture')
 ax1.imshow(image_rgb)
 
-ax2.set_title('Edge (white) and result (red)')
-ax2.imshow(im2)
+ax2.set_title('(un)Canny edges (?)')
+ax2.imshow(img_as_ubyte(edges))
 
-plt.show()
+ax3.set_title('Edge (white) and result (red)')
+ax3.imshow(image_conts)
+
+ax4.set_title('Fitted ellipses 0:{}, starting from largest'.format(nbr_conts))
+ax4.imshow(image_ellipses)
+
+#plt.show()

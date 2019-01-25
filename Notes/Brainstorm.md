@@ -33,3 +33,6 @@ https://web.stanford.edu/class/ee368/Project_Autumn_1516/Reports/Delaney.pdf
 
 * Conic Correspondence:
 http://www.macs.hw.ac.uk/bmvc2006/papers/306.pdf
+
+* Conic detection?
+http://vision.gel.ulaval.ca/~jouellet/publications/DualConicMVA.pdf
