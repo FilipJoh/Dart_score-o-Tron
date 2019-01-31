@@ -41,6 +41,15 @@ class Conic(object):
     
     def __set_parametrization():
         pass
+    
+    def plot(self):
+        pass
+        
+        
+        
+        
+        
+        
 
 class Ellipse(Conic):
     def __init__(self, C_x, C_y, R_x, R_y, theta, Z=0):
@@ -78,8 +87,38 @@ class Ellipse(Conic):
         C = self.C[1, 1]
         D = 2*self.C[0,2]
         E = 2*self.C[1,2]
-        F = 2*self.C[2,2]
+        F = self.C[2,2]
         
+        delta = A*C - (B**2) / 2
+        self.C_x = (0.5*(B)*0.5*(E) - C*0.5*D) / (delta)
+        self.C_y = (0.5*(B)*0.5*(D) - A*0.5*E) / (delta)
+#        X_0 = np.linalg.solve(np.asarray(((2*A, B), (B, 2*A))), np.asarray((-D, -E)))
+#        self.C_x = X_0[0]
+#        self.C_y = X_0[1]
+        
+#        self.C_x = (1 / (B**2 - 4*A*C)) * (2*C*D - B*E)
+#        self.C_y = (1 / (B**2 - 4*A*C)) * (2*A*E - B*D)
+        
+        M = np.asarray(((A, B/2), (B/2, C)))
+        e, v = np.linalg.eig(M)
+        self.R_x = np.sqrt(e[0])
+        self.R_y = np.sqrt(e[1])
+#        eig1 = (A + C) / 2 + np.sqrt(((A - C)**2 + 4*B**2)/2)
+#        eig2 = (A + C) / 2 - np.sqrt(((A - C)**2 + 4*B**2)/2)
+        self.theta = np.arccos(v[0,0])
+        pass
+    
+    def plot(self):
+        p = self.sample(1000)
+        plt.scatter(p[0,:], p[1,:])
+        plt.axis([-7,7,-7,7])
+        print('AAHUBABUBA')
+        self.__set_parametrization()
+        p = self.sample(1000)
+        plt.scatter(p[0,:], p[1,:])
+        plt.axis([-7,7,-7,7])
+        
+        plt.grid('on')
         
         
         
@@ -106,13 +145,19 @@ class Ellipse(Conic):
             points[1, i] = y_translated
         
         return points
+    
+    def prent(self):
+        print('C_x: {}'.format(self.C_x))
+        print('C_y: {}'.format(self.C_y))
+        print('R_x: {}'.format(self.R_x))
+        print('R_y: {}'.format(self.R_y))
+        print('Theta: {}'.format(self.theta))
 
 
-e = Ellipse(0, 0, 1, 3, 0.05*2*np.pi)
-p = e.sample(1000)
-plt.scatter(p[0,:], p[1,:])
-plt.axis([-7,7,-7,7])
-plt.grid('on')
+e = Ellipse(0, -3, 3, 1, 0.1)
+e.prent()
+e.plot()
+e.prent()
 plt.show()
         
 P1 = np.asarray(((1, 0, 0, 0), (0, 1, 0, 0), (0, 0, 1, 0)))
