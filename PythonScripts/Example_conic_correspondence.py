@@ -43,7 +43,19 @@ class Conic(object):
         pass
     
     def plot(self):
-        pass
+        x = np.linspace(-10, 10, 100)
+        y = np.linspace(-10, 10, 100)
+        for i in range(x.size):
+            for j in range(y.size):
+                vec = np.asarray([x[i], y[j], 1])
+                val = (vec.T).dot(self.C).dot(vec)
+                if val < 0:
+                    plt.scatter(x[i], y[j], color='black', s=5)
+        plt.grid('on')
+        plt.axis([-10,10,-10,10])
+        plt.axhline(y=0, color='k')
+        plt.axvline(x=0, color='k')
+        plt.legend()
         
         
         
@@ -59,8 +71,10 @@ class Ellipse(Conic):
         self.R_y = R_y
         self.theta = theta
         
-        (A, B, C, D, E, F) = self.__get_parametrization()
-        matrix_representation = np.asarray(((A, B/2, D/2),(B/2, C, E/2),(D/2, E/2, F)))
+        self.__get_parametrization()
+        matrix_representation = np.asarray(((self.implicit_coefficients['A'], self.implicit_coefficients['B']/2, self.implicit_coefficients['D']/2),
+                                             (self.implicit_coefficients['B']/2, self.implicit_coefficients['C'], self.implicit_coefficients['E']/2),
+                                             (self.implicit_coefficients['D']/2, self.implicit_coefficients['E']/2, self.implicit_coefficients['F'])))
         
         super().__init__(matrix_representation, Z)
         
@@ -71,28 +85,16 @@ class Ellipse(Conic):
         D = -(2*A*self.C_x + B*self.C_y)
         E = -(2*C*self.C_y + B*self.C_x)
         F = A*self.C_x**2 + B*self.C_x*self.C_y + C*self.C_y**2 - self.R_x**2*self.R_y**2
-        return (1, B/A, C/A, D/A, E/A, F/A)
+        self.implicit_coefficients =  {'A': A, 'B': B, 'C': C, 'D': D, 'E': E, 'F': F}
     
     def set_parametrization(self):
-        A = self.C[0, 0]
-        B = 2*self.C[0, 1]
-        C = self.C[1, 1]
-        D = 2*self.C[0,2]
-        E = 2*self.C[1,2]
-        F = self.C[2,2]
-        
-#        delta = A*C - (B**2) / 2
-#        self.C_x = (0.5*(B)*0.5*(E) - C*0.5*D) / (delta)
-#        self.C_y = (0.5*(B)*0.5*(D) - A*0.5*E) / (delta)
-        X_0 = np.linalg.solve(np.asarray(((A, B/2), (B/2, C))), np.asarray((-D/2, -E/2)))
+        eq_2by2 = np.asarray(((self.implicit_coefficients['A'], self.implicit_coefficients['B']/2),
+                               (self.implicit_coefficients['B']/2, self.implicit_coefficients['C'])))
+        X_0 = np.linalg.solve(eq_2by2, np.asarray((-self.implicit_coefficients['D']/2, -self.implicit_coefficients['E']/2)))
         self.C_x = X_0[0]
         self.C_y = X_0[1]
         
-#        self.C_x = (1 / (B**2 - 4*A*C)) * (2*C*D - B*E)
-#        self.C_y = (1 / (B**2 - 4*A*C)) * (2*A*E - B*D)
-        
-        M = np.asarray(((A, B/2), (B/2, C)))
-        e, v = np.linalg.eig(M)
+        e, v = np.linalg.eig(eq_2by2)
         self.R_x = np.sqrt(e[1])
         self.R_y = np.sqrt(e[0])
         self.theta = np.arctan(v[1,0] / v[0,0])
@@ -102,32 +104,8 @@ class Ellipse(Conic):
     
     def plot(self):
         p = self.sample(1000)
-        plt.scatter(p[0,:], p[1,:], label='parametrical')
-        
-        x = np.linspace(-10, 10, 100)
-        y = np.linspace(-10, 10, 100)
-        for i in range(x.size):
-            for j in range(y.size):
-                vec = np.asarray([x[i], y[j], 1])
-                val = (vec.T).dot(self.C).dot(vec)
-                if val < 0:
-                    plt.scatter(x[i], y[j], color='black', s=5)
-#        p = self.sample(1000)
-#        plt.scatter(p[0,:], p[1,:], label='before')
-#        plt.axis([-10,10,-10,10])
-#        self.__set_parametrization()
-#        p = self.sample(1000)
-#        plt.scatter(p[0,:], p[1,:], label='after')
-#        
-        plt.grid('on')
-        plt.axis([-10,10,-10,10])
-        plt.axhline(y=0, color='k')
-        plt.axvline(x=0, color='k')
-        plt.legend()
-        
-        
-        
-    
+        plt.scatter(p[0,:], p[1,:], label='parametrical')  
+
     def sample(self, npoints=10):
         # Generate uniformely distributed angles
         angles = 2*np.pi*np.random.rand(npoints)
@@ -159,18 +137,18 @@ class Ellipse(Conic):
         print('Theta: {}'.format(self.theta))
 
 
-e = Ellipse(0, 0, 5, 2, 0.1*np.pi)
+e = Ellipse(7, 1, 5, 2, 0.2*np.pi)
 print('before')
 e.prent()
 plt.figure()
 e.plot()
 plt.title('before parameter extraction')
-#print('after')
-#e.set_parametrization()
-#e.prent()
-#plt.figure()
-#e.plot()
-#plt.title('after parameter extraction')
+print('after')
+e.set_parametrization()
+e.prent()
+plt.figure()
+e.plot()
+plt.title('after parameter extraction')
         
 #P1 = np.asarray(((1, 0, 0, 0), (0, 1, 0, 0), (0, 0, 1, 0)))
 #
